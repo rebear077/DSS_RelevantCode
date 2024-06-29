@@ -1,0 +1,48 @@
+clc; clear;
+% The function of the code：
+% Generate Points as satellites
+radiusE = 6371.*1000; 
+
+heightS=1000.*1000;%Satellite altitude of 1000 km.
+radiusS= heightS+radiusE; % The radius of the satellite sphere.
+densityS =(1.5.*10.^(-7))./(10.^(6)); %The density of the satellite.
+
+min_elevation_BS = 10; % The minimum elevation angle (in degrees).
+
+% 计算卫星球面上点的数量
+areaS = 4 * pi * radiusS^2;
+numPointsS = poissrnd(densityS * areaS);
+
+% 地球面找一个点，作为地面基站的中心点
+pointA =  [0, 0, radiusE];
+
+% 生成卫星面上的点
+[xS, yS, zS] = generateSpherePoints(numPointsS, radiusS);
+
+% 计算每个点到点A的距离
+distances = sqrt((xS - pointA(1)).^2 + (yS - pointA(2)).^2 + (zS - pointA(3)).^2);
+% 计算每个点到点A的最大距离
+Distance_max=sqrt((radiusE.*sin(min_elevation_BS).^2+ radiusS^2- radiusE^2)) - radiusE.*sin(min_elevation_BS);
+
+% 找到距离小于等于d的点的索引（A点可视范围内的卫星）
+visible_indices = find(distances <= Distance_max);
+
+% 提取可视范围内的卫星坐标信息
+visible_satellite_x = xS(visible_indices);
+visible_satellite_y = yS(visible_indices);
+visible_satellite_z = zS(visible_indices);
+
+% 显示可视范围内的卫星坐标信息
+disp('可视范围内的卫星坐标信息:');
+for i = 1:numel(visible_indices)
+    fprintf('卫星 %d 的坐标：(%f, %f, %f)\n', i, visible_satellite_x(i), visible_satellite_y(i), visible_satellite_z(i));
+end
+
+% 球面点生成函数
+function [x, y, z] = generateSpherePoints(numPoints, radius)
+    theta = 2 * pi * rand(numPoints, 1);% 方位角
+    phi = acos(2 * rand(numPoints, 1) - 1);% 极角
+    x = radius * sin(phi) .* cos(theta);
+    y = radius * sin(phi) .* sin(theta);
+    z = radius * cos(phi);
+end
