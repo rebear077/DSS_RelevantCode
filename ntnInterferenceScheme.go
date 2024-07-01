@@ -206,7 +206,7 @@ func (nit *NTNINTERFERENCEtpbft) TidyTransactions(leader common.NodeID, version 
 		return nil, nil, nil
 	}
 
-	//构建区块
+	//construct the Block
 	candidateBlock := &eles.Block{
 		BlockID:      common.Hash{},
 		Subnet:       []byte(nit.consensusPromoter.SelfNode.NetID), //The subnet ID of the current node
